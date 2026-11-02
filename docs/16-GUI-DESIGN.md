@@ -77,7 +77,7 @@ The mock screens below are low-detail wireframes of the main screens of each rol
 **Main elements**
 
 - Cart items grouped by seller with quantity controls and a Remove link
-- Order summary with subtotal, shipping, and total
+- Order summary with subtotal, shipping, estimated tax, and total (shipping and tax are always free and zero in this version, section 6.3, so the total equals the subtotal)
 - Place Order & Pay button
 - Note that stock is reserved for 15 minutes after the order is placed
 
@@ -87,7 +87,7 @@ The mock screens below are low-detail wireframes of the main screens of each rol
 - An empty cart shows a message and a link back to the listing
 - After Place Order, the payment window of the gateway opens; the customer then sees a success or failure screen
 
-**Related endpoints:** `GET /cart`, `DELETE /cart/items/:id`, `POST /orders`
+**Related endpoints:** `GET /cart`, `PATCH /cart/items/:id`, `DELETE /cart/items/:id`, `POST /orders`
 
 ## 16.6 Add Product
 
@@ -131,7 +131,7 @@ The mock screens below are low-detail wireframes of the main screens of each rol
 - Changing a status asks for confirmation first
 - A delivered item has no further action
 
-**Related endpoints:** `GET /orders`, `PATCH /orders/:id/items/:itemId`
+**Related endpoints:** `GET /seller/order-items`, `PATCH /orders/:id/items/:itemId`
 
 ## 16.8 Admin Dashboard
 

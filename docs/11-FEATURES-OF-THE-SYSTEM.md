@@ -60,8 +60,8 @@
 
 ### 11.5.3 Data Protection
 
-- All database queries use parameterized statements (via the query builder) — no raw string-concatenated SQL, so standard SQL injection vectors are closed.
-- User-submitted text fields (product descriptions, reviews) are sanitized before storage and escaped on render to prevent stored XSS.
+- All database queries use parameterized statements (placeholders such as `$1` in the `pg` driver) — no raw string-concatenated SQL, so standard SQL injection vectors are closed.
+- User-submitted text fields are sanitized before storage and escaped on render to prevent stored XSS.
 
 ### 11.5.4 Secrets Handling
 
@@ -76,5 +76,5 @@
 
 ### 11.5.6 Known security gaps
 
-- No rate limiting is currently implemented on auth endpoints (login/register), which would be a priority addition before any real deployment — see [18-CONCLUSION.md](18-CONCLUSION.md).
+- No rate limiting is currently implemented on auth endpoints (login/register), which would be a priority addition before any real deployment — see section 18.4 ([18-CONCLUSION-AND-FUTURE-SCOPE.md](18-CONCLUSION-AND-FUTURE-SCOPE.md)).
 - CSRF protection is not separately implemented; mitigated partially by the API being token-based (not cookie-session-based) for state-changing requests, aside from the refresh-token cookie.

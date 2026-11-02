@@ -54,7 +54,7 @@ Management Information System (MIS) reports turn the data stored by the applicat
 SELECT date_trunc('day', o.created_at)::date          AS day,
        COUNT(DISTINCT o.id)                           AS orders,
        SUM(oi.quantity)                               AS items_sold,
-       SUM(oi.quantity * oi.price_at_purchase_cents) / 100.0 AS revenue
+       SUM(oi.quantity * oi.price_at_purchase_paise) / 100.0 AS revenue
 FROM orders o
 JOIN order_items oi ON oi.order_id = o.id
 WHERE o.status IN ('confirmed', 'completed')
@@ -79,12 +79,12 @@ ORDER BY day;
 
 | Store | Products Listed | Items Sold | Revenue (Rs.) | Fulfilment Rate | Average Days to Ship |
 |---|--:|--:|--:|--:|--:|
-| TechBazaar | 58 | 171 | 312,900 | 91% | 2.4 |
+| GadgetHub | 58 | 171 | 312,900 | 91% | 2.4 |
 | HomeNest | 34 | 212 | 145,600 | 96% | 1.8 |
-| GreenLeaf Organics | 27 | 305 | 88,450 | 98% | 1.2 |
-| Urban Threads | 41 | 94 | 61,300 | 84% | 3.1 |
+| SpiceRoute Foods | 27 | 305 | 88,450 | 98% | 1.2 |
+| StyleLoom | 41 | 94 | 61,300 | 84% | 3.1 |
 
-*Fulfilment rate = items delivered divided by items sold in the period.*
+*Fulfilment rate = items delivered divided by items sold in the period. Average days to ship = the average of `order_items.shipped_at` minus `orders.created_at` for items shipped in the period.*
 
 ## 17.5 R3: Inventory and Low Stock Report
 
@@ -103,11 +103,11 @@ ORDER BY day;
 |---|---|---|--:|---|
 | Steel Water Bottle 1L | HomeNest | Home & Kitchen | 0 | Out of stock |
 | Cast Iron Kadai 3L | KitchenKing | Home & Kitchen | 4 | Low |
-| USB-C Fast Charger 65W | TechBazaar | Electronics | 7 | Low |
-| Masala Tea 250g | GreenLeaf Organics | Grocery | 9 | Low |
+| USB-C Fast Charger 65W | GadgetHub | Electronics | 7 | Low |
+| Masala Tea 250g | SpiceRoute Foods | Grocery | 9 | Low |
 | Non-Stick Frying Pan 28cm | HomeNest | Home & Kitchen | 40 | OK |
 
-*Status is Out of stock at 0, Low at or below the threshold, and OK above it. The Low Stock card on the admin dashboard links to this report.*
+*Only active products are included (deleted products are excluded, section 15.6). Status is Out of stock at 0, Low at or below the threshold, and OK above it. The Low Stock card on the admin dashboard links to this report.*
 
 ## 17.6 R4: Order Status Report
 
@@ -148,7 +148,7 @@ ORDER BY day;
 | Order | Gateway Payment ID | Order Amount (Rs.) | Paid Amount (Rs.) | Payment Status | Order Status | Flag |
 |---|---|--:|--:|---|---|---|
 | #D41E77 | pay_Nx90Lm | 1,899 | 1,899 | confirmed | pending_payment | **Check** |
-| #A3F1E9 | pay_Nx81Kq | 4,496 | 4,496 | confirmed | confirmed | OK |
+| #A3F1E9 | pay_Nx81Kq | 3,847 | 3,847 | confirmed | confirmed | OK |
 | #B7C204 | pay_Nx83Tz | 2,150 | 2,150 | confirmed | completed | OK |
 | #9D02B1 | none | 3,499 | none | pending | expired | OK (unpaid, stock restored) |
 

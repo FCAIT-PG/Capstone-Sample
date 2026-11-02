@@ -8,8 +8,8 @@ This repository is a **sample capstone submission** demonstrating the required d
 
 | Layer | Technology |
 |---|---|
-| Frontend (web) | React, Tailwind CSS |
-| Backend | Node.js, Express |
+| Frontend (web) | React, TypeScript, Tailwind CSS |
+| Backend | Node.js, Express, TypeScript |
 | Database | PostgreSQL |
 | Auth | JWT (access + refresh tokens) |
 | Payments | Razorpay (test mode) |
@@ -37,13 +37,13 @@ shopsphere/
 │   ├── 15-DATABASE-DESIGN.md
 │   ├── 16-GUI-DESIGN.md
 │   ├── 17-MIS-REPORTS-DESIGN.md
-│   ├── 18-CONCLUSION.md
+│   ├── 18-CONCLUSION-AND-FUTURE-SCOPE.md
 │   ├── openapi.yaml
 │   ├── diagrams/
 │   │   └── (diagram images)
 │   ├── screens/
 │   │   └── (mock screen images)
-│   └── Certificate.pdf
+│   └── Certificate.pdf (provided by the guide after approval)
 ├── backend/
 │   ├── src/
 │   │   ├── routes/
@@ -51,7 +51,9 @@ shopsphere/
 │   │   ├── models/
 │   │   ├── middleware/
 │   │   └── ml/
-│   └── package.json
+│   ├── .env.example
+│   ├── package.json
+│   └── tsconfig.json
 ├── ml/
 │   ├── notebooks/
 │   ├── src/
@@ -64,12 +66,14 @@ shopsphere/
         │   ├── components/
         │   ├── pages/
         │   └── api/
-        └── package.json
+        ├── .env.example
+        ├── package.json
+        └── tsconfig.json
 ```
 
 This project has a web client only, so there is no `frontend/mobile/` folder.
 
-The documents in `docs/` are numbered by their section in the final project report. Sections 1 to 4 (title page, college certificate, acknowledgement, and index) are generated separately and are not part of the repository.
+The documents in `docs/` are numbered by their section in the final project report. Sections 1 to 4 (title page, college certificate, acknowledgement, and index) are provided by the project guide and are not written in the repository. Once the guide approves the project, the signed certificate is committed as `docs/Certificate.pdf`.
 
 ## Getting Started
 
@@ -84,6 +88,7 @@ npm run dev
 # Web frontend
 cd frontend/web
 npm install
+cp .env.example .env   # fill in the values listed in .env.example
 npm run dev
 ```
 
@@ -117,6 +122,6 @@ See section 10.10 of [`docs/10-MODULES-OF-THE-SYSTEM.md`](docs/10-MODULES-OF-THE
 | 15 | [Database Design](docs/15-DATABASE-DESIGN.md) | ER diagram and data dictionary |
 | 16 | [GUI Design](docs/16-GUI-DESIGN.md) | Mock screens |
 | 17 | [MIS Reports Design](docs/17-MIS-REPORTS-DESIGN.md) | Management report designs |
-| 18 | [Conclusion](docs/18-CONCLUSION.md) | Summary, testing, limitations, future scope |
+| 18 | [Conclusion and Future Scope](docs/18-CONCLUSION-AND-FUTURE-SCOPE.md) | Summary, testing, limitations, future scope |
 
 The API specification is in [`docs/openapi.yaml`](docs/openapi.yaml).

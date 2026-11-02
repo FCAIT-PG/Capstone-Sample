@@ -1,4 +1,4 @@
-# 18. Conclusion
+# 18. Conclusion and Future Scope
 
 ## 18.1 Summary
 
@@ -31,7 +31,7 @@ Testing is split between the backend (where the business logic lives) and light 
 |---|---|---|
 | Unit tests | Jest | Order total calculation, stock decrement logic, JWT issuing/verification, input validators |
 | Integration tests | Jest + Supertest | Auth flow (register → login → refresh), order placement (cart → order → stock check), seller-scoped access control (a seller cannot update another seller's product) |
-| Model parity test | Jest | The JavaScript category classifier gives the same top-1 prediction as the Python model on 200 held-out listings (guards against tokenizer drift between training and serving) |
+| Model parity test | Jest | The TypeScript category classifier gives the same top-1 prediction as the Python model on 200 held-out listings (guards against tokenizer drift between training and serving) |
 
 Example test scenarios covered:
 - Placing an order with insufficient stock returns `409 INSUFFICIENT_STOCK` and does not create the order.
@@ -60,13 +60,13 @@ npm run test:coverage # generates coverage report
 
 | Module | Coverage |
 |---|---|
-| `controllers/orderController.js` | 87% |
-| `controllers/productController.js` | 76% |
-| `middleware/auth.js` | 92% |
-| `utils/validators.js` | 95% |
+| `controllers/orderController.ts` | 87% |
+| `controllers/productController.ts` | 76% |
+| `middleware/auth.ts` | 92% |
+| `utils/validators.ts` | 95% |
 | Overall | ~81% |
 
-CI runs the backend test suite on every push via GitHub Actions (`.github/workflows/test.yml`); a passing badge is shown in the root `README.md` once configured.
+CI runs the backend test suite on every push via GitHub Actions (`.github/workflows/test.yml`).
 
 ## 18.4 Limitations
 
@@ -84,7 +84,7 @@ CI runs the backend test suite on every push via GitHub Actions (`.github/workfl
 - Add Redis-backed rate limiting on auth and checkout endpoints.
 - Introduce Playwright-based E2E tests for the three core user flows.
 - Add a review/rating system with seller response capability.
-- Move product search to a dedicated search index (e.g. PostgreSQL full-text search or a lightweight external search service) as the catalog grows.
+- Move product search to a dedicated search index (e.g. PostgreSQL full-text search or a lightweight external search service) as the catalogue grows.
 - Use seller corrections of the suggested category as feedback to retrain and improve the model.
 - Add email notifications for order status changes (currently orders update silently in the UI only).
 

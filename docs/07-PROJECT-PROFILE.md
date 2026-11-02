@@ -15,8 +15,8 @@
 | **Institution** | [Institution name] |
 | **Academic year** | [Year] |
 | **Project duration** | 14 weeks (see section 9.4) |
-| **Front end** | React, Tailwind CSS |
-| **Back end** | Node.js, Express |
+| **Front end** | React, TypeScript, Tailwind CSS |
+| **Back end** | Node.js, Express, TypeScript |
 | **Database** | PostgreSQL |
 | **Machine learning** | Python, scikit-learn (training); model runs inside the Node.js backend |
 | **Payment gateway** | Razorpay (test mode) |

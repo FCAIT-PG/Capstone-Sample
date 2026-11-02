@@ -1,6 +1,6 @@
 """Trains the product category classifier and writes metrics to models/metrics.json.
 
-Stubbed for the documentation sample. A real implementation follows the steps in docs/ML.md:
+Stubbed for the documentation sample. A real implementation follows the training setup in section 10.10.4 of docs/10-MODULES-OF-THE-SYSTEM.md:
   1. Load ml/data/raw/, drop rows with empty title or unmapped category
   2. Map source categories onto the 8 ShopSphere categories
   3. Remove duplicate titles BEFORE splitting (avoids train/test leakage)

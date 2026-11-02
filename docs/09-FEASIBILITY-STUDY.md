@@ -4,7 +4,7 @@ A feasibility study checks whether the project can realistically be completed an
 
 ## 9.1 Technical Feasibility
 
-The system uses mainstream, well-documented technologies (React, Node.js, Express, PostgreSQL), all of which the team already knew or could learn from freely available material. JavaScript is used on both the frontend and the backend, which reduces the learning load for a small team. Payment processing is delegated to an established payment gateway rather than built from scratch, and the machine learning component uses a lightweight model (TF-IDF with logistic regression) that trains in seconds on an ordinary laptop. No specialised hardware is needed.
+The system uses mainstream, well-documented technologies (React, Node.js, Express, PostgreSQL), all of which the team already knew or could learn from freely available material. TypeScript is used on both the frontend and the backend, which reduces the learning load for a small team. Payment processing is delegated to an established payment gateway rather than built from scratch, and the machine learning component uses a lightweight model (TF-IDF with logistic regression) that trains in seconds on an ordinary laptop. No specialised hardware is needed.
 
 **Conclusion:** technically feasible.
 

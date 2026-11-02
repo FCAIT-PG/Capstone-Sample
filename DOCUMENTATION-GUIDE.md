@@ -4,7 +4,7 @@
 
 For your capstone, you will submit a **GitHub repository** that contains your working project *and* its documentation. The documentation is written in **Markdown** files that live next to your code. Your repository will also double as a portfolio piece you can show in interviews.
 
-Your documentation files together form your **project report**. They are numbered **05 to 18**, following the sections of the final report, and at the end they are combined into a single PDF. Sections 1 to 4 of the report (Title Page, College Certificate, Acknowledgement, and Index) are generated separately, so **you do not write them**.
+Your documentation files together form your **project report**. They are numbered **05 to 18**, following the sections of the final report, and at the end they are combined into a single PDF. Sections 1 to 4 of the report (Title Page, College Certificate, Acknowledgement, and Index) are provided by your guide, so **you do not write them**.
 
 > **Reference example:** a complete sample repository is available at **https://github.com/FCAIT-PG/Capstone-Sample**. Look at it before you start writing. It shows the level of detail expected.
 
@@ -35,11 +35,11 @@ project-root/
 │   ├── 15-DATABASE-DESIGN.md
 │   ├── 16-GUI-DESIGN.md
 │   ├── 17-MIS-REPORTS-DESIGN.md
-│   ├── 18-CONCLUSION.md
+│   ├── 18-CONCLUSION-AND-FUTURE-SCOPE.md
 │   ├── openapi.yaml       (your API specification)
 │   ├── diagrams/          (diagram images)
 │   ├── screens/           (screenshots and mock screen images)
-│   └── Certificate.pdf
+│   └── Certificate.pdf    (provided by your guide after approval)
 ├── backend/
 ├── ml/                    (only if your project involves an AI/ML model)
 │   ├── notebooks/
@@ -78,7 +78,7 @@ The front door of your project. It is not part of the numbered report. It must i
 - The tech stack
 - **Setup and run instructions** that actually work, covering every part of your project (backend, web, and/or mobile)
 
-**Test it:** clone your repository into a fresh folder and follow your own README from scratch. An evaluator should be able to get the project running in about 5 minutes without asking you anything.
+**Test it:** clone your repository into a fresh folder and follow your own README from scratch. An evaluator should be able to get the project running without asking you anything.
 
 ### `05-INTRODUCTION.md`
 - Background: the real-world context and why the problem matters
@@ -89,7 +89,7 @@ The front door of your project. It is not part of the numbered report. It must i
 
 ### `06-PROJECT-DEFINITION.md`
 - **Problem statement**
-- **Objectives**, as a numbered list (you will refer back to these in the Conclusion)
+- **Objectives**, as a numbered list (you will refer back to these in the Conclusion and Future Scope, section 18)
 - **Scope:** what is in scope and what is deliberately out of scope
 - Assumptions and constraints
 - Deliverables
@@ -146,7 +146,7 @@ If your project calls an existing LLM or AI API instead of training a model, kee
 - The **major design decisions and why you made them.** Write each as a short decision record: *the decision, the reasoning, and the trade-off you accepted.* (See the sample for examples.) This is where evaluators look for evidence that you *thought* about your design, not just built it. If your project has an AI/ML model, also record where the model runs (bundled in the backend or as a separate service) and whether predictions are real-time or batch.
 
 ### `14-UML-DIAGRAMS.md`
-- **Class diagram:** required only if your system is object oriented. Show the core domain classes, not every helper class. If it does not apply, write a short paragraph explaining why.
+- **Class diagram:** required for every project. If your system is object oriented, show the core domain classes with their key attributes and methods, not every helper class. If it is not (for example a backend built from plain functions), show the core domain types instead: their attributes, enumerations, and relationships. Either way, add a sentence explaining how the diagram differs from the ER diagram in section 15.
 - **Use case diagram:** all actors and the major things each can do
 - **Sequence diagrams:** for your most critical or complex flows (for example login or checkout). Not one per endpoint.
 - **Activity diagram:** for your most complex business workflow, showing real decisions and branches
@@ -176,7 +176,7 @@ Design of the management (MIS) reports your system provides. Start with a catalo
 
 Also state any rules that apply to all reports (for example which records are counted in revenue).
 
-### `18-CONCLUSION.md`
+### `18-CONCLUSION-AND-FUTURE-SCOPE.md`
 - **Summary** of what was built
 - **Objectives achieved:** a table that goes back through the objectives from section 6 and says where each is covered
 - **Testing and quality assurance:** your testing approach (what you tested, how, and why you focused there), the tools used, evidence (coverage numbers, a CI badge, or sample test output), and how to run the tests. You do not need to test everything. Focus on the parts where a bug would hurt most, and say so. If you have a model, keep software tests separate from model evaluation, and point to the model evaluation in section 10.
@@ -187,8 +187,8 @@ Also state any rules that apply to all reports (for example which records are co
 Honest self-assessment is valued. A project with clearly stated limitations is stronger than one that claims to be perfect.
 
 ### `docs/Certificate.pdf`
-- A project completion certificate will be provided by the guide **AFTER** the submission and evaluation, which must be signed by the guide, the project coordinator, and the head of the department.
-- This signed certificate must be committed to the GitHub repository.
+- Your guide reviews your repository (without sections 1 to 4) and, once it is approved, sends you a signed project completion certificate.
+- Commit this certificate to your repository as `docs/Certificate.pdf`. You do not need to create it yourself.
 
 ---
 
@@ -200,7 +200,7 @@ Honest self-assessment is valued. A project with clearly stated limitations is s
 |---|---|---|
 | **Architecture diagram** | Section 13 | Visualisation of the whole system |
 | **ML pipeline diagram** | Section 13 | Required **only if** your project trains or uses a model |
-| **Class diagram** | Section 14 | Required **only if** your system is object oriented |
+| **Class diagram** | Section 14 | Core domain classes (object-oriented systems) or core domain types (other systems) |
 | **Use case diagram** | Section 14 | All actors and the major things each can do |
 | **Sequence diagrams** | Section 14 | For your most critical or complex flows. Not one per endpoint. |
 | **Activity diagram** | Section 14 | For your most complex business workflow, showing real decisions and branches |
@@ -298,11 +298,11 @@ Go through this before you submit.
 - [ ] Database Design explains the database choice and has a complete data dictionary
 - [ ] GUI Design covers the main screens of every user role, including empty, error, and confirmation states
 - [ ] MIS Reports Design has a sample layout for every report
-- [ ] Conclusion covers objectives, testing, limitations, and future scope
+- [ ] Conclusion and Future Scope covers objectives, testing, limitations, and future scope
 - [ ] If your project uses a model: the model module in section 10 covers the dataset, model choice, evaluation (with a baseline), and reproducibility
 
 **Diagrams**
-- [ ] Architecture, use case, sequence, activity, and ER diagrams are present (also class diagram, if object oriented)
+- [ ] Architecture, class, use case, sequence, activity, and ER diagrams are present
 - [ ] If your project trains or uses a model: ML pipeline diagram is present
 - [ ] Every diagram is an image file (no Mermaid or other code), and the text is readable
 - [ ] Every diagram has a short explanation beneath it

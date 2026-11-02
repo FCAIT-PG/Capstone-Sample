@@ -1,5 +1,5 @@
 // Category suggestion — loads the exported model once at startup and scores text in-process.
-// Stubbed for documentation-sample purposes. See docs/ML.md.
+// Stubbed for documentation-sample purposes. See section 10.10 in docs/10-MODULES-OF-THE-SYSTEM.md.
 //
 // Real implementation steps:
 //   1. Load category_model.json once (vocabulary, idf, coefficients, intercepts, categories)
@@ -8,10 +8,11 @@
 //   4. Multiply by the coefficient matrix, add intercepts, apply softmax
 //   5. Return the top 3 categories with confidence, flagging low confidence (< 0.5)
 
-const model = require('./category_model.json');
+import model from './category_model.json';
+import { SuggestionResult } from '../models/types';
 
-function suggestCategories(text) {
+export function suggestCategories(text: string): SuggestionResult {
   throw new Error('Sample stub: see the steps in this file header.');
 }
 
-module.exports = { suggestCategories };
+export const categories: string[] = model.categories;

@@ -32,8 +32,9 @@ ShopSphere addresses this by providing a shared marketplace where multiple selle
 
 **Out of scope**
 
-- Review and rating moderation
+- Product reviews and ratings
 - Coupon and discount engine
+- Shipping charges and tax calculation (shipping is free and prices include all taxes)
 - Product recommendation system
 - Live courier or logistics integration (sellers update fulfilment status manually)
 - Native mobile application (the system is a web application)

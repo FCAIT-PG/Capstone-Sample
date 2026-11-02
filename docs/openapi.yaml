@@ -48,6 +48,14 @@ paths:
           name: search
           schema: { type: string }
         - in: query
+          name: min_price
+          description: Minimum price in paise
+          schema: { type: integer, minimum: 0 }
+        - in: query
+          name: max_price
+          description: Maximum price in paise
+          schema: { type: integer, minimum: 0 }
+        - in: query
           name: page
           schema: { type: integer, default: 1 }
       responses:
@@ -121,10 +129,13 @@ components:
   schemas:
     ProductInput:
       type: object
-      required: [title, category, price_cents, stock]
+      required: [title, category, price_paise, stock]
       properties:
-        title: { type: string }
-        category: { type: string }
-        price_cents: { type: integer }
-        stock: { type: integer }
+        title: { type: string, maxLength: 200 }
+        description: { type: string }
+        category:
+          type: string
+          enum: [Electronics, Fashion, Home & Kitchen, Books, Beauty, Sports, Toys, Grocery]
+        price_paise: { type: integer, minimum: 0, description: Price in paise }
+        stock: { type: integer, minimum: 0 }
         attributes: { type: object }

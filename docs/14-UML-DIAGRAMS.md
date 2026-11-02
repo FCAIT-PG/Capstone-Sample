@@ -4,13 +4,28 @@ This section contains the class, use case, sequence, and activity diagrams. The 
 
 ## 14.1 Class Diagram
 
-**Not applicable for this project.** The backend is organised as functional modules (routes, controllers, and models as plain functions and query helpers) rather than an object-oriented class hierarchy, so a class diagram would add little beyond what the entity-relationship diagram in section 15 already shows. Projects built around real classes and inheritance or composition (for example a Java/Spring or C# backend with a domain model) are expected to include a class diagram here covering the core domain classes only, not every helper or utility class.
+![ShopSphere class diagram](diagrams/class-diagram.png)
+
+ShopSphere is not built around classes with inheritance; the backend is organised as functional modules (section 13.3, ADR-001). The class diagram therefore shows the **core domain types**: the TypeScript interfaces and enums in `backend/src/models/types.ts` that every module passes around. Operations are not shown because these types carry data only; the functions that act on them belong to the modules in section 10.
+
+The diagram describes the same data as the entity-relationship diagram in section 15.2, but from the application's point of view rather than the database's:
+
+| Entity-relationship diagram (section 15.2) | Class diagram (this section) |
+|---|---|
+| Tables, columns, and SQL types | Interfaces with TypeScript types (`string`, `number`, `boolean`, `Date`) |
+| Foreign key columns such as `order_id` | Associations with multiplicities |
+| Status columns stored as `VARCHAR` with a CHECK constraint | Enumerations (`Role`, `OrderStatus`, `FulfilmentStatus`, and so on) |
+| `order_items` is a table like any other | Composition: an `Order` owns one or more `OrderItem`s, which cannot exist without it |
+| `users.password_hash` column | Not part of `User`; the hash never leaves the authentication code (section 11.5.1) |
+| No equivalent | `Cart` (assembled from `cart_items` rows, with a derived subtotal) and `SuggestionResult` / `CategorySuggestion` (produced by the model for each request, section 10.10, and never stored) |
+
+Field names are camelCase in the code and snake_case in the database and API (sections 15.3 and 10); the data-access layer maps between the two.
 
 ## 14.2 Use Case Diagram
 
 ![ShopSphere use case diagram](diagrams/use-case.png)
 
-The diagram shows the three actors (Customer, Seller, and Admin) and the major things each can do. Registration and login apply to every actor and are noted on the diagram instead of being drawn as a use case, to keep it readable.
+The diagram shows the three actors (Customer, Seller, and Admin) and the major things each can do. Registration and login apply to every actor and are noted on the diagram instead of being drawn as a use case, to keep it readable. A guest (a visitor who is not logged in, section 12.1) can only perform UC1, so guests are not drawn as a separate actor.
 
 | ID | Use case | Actor | Description |
 |---|---|---|---|
@@ -50,4 +65,4 @@ Shows one prediction request from start to finish. The model is loaded once when
 
 ![Activity diagram: order lifecycle](diagrams/activity-order-lifecycle.png)
 
-This diagram shows the full life of an order as a business workflow, including the decision points where it can fail or expire. The sequence diagrams above show *who talks to whom*; this one shows *what decisions the process makes*. The loop at the end reflects that every seller updates only their own items until all items are delivered (ADR-002 in section 13.3 and the `fulfillment_status` column in section 15.3.6).
+This diagram shows the full life of an order as a business workflow, including the decision points where it can fail or expire. The sequence diagrams above show *who talks to whom*; this one shows *what decisions the process makes*. The loop at the end reflects that every seller updates only their own items until all items are delivered (ADR-002 in section 13.3 and the `fulfilment_status` column in section 15.3.6).

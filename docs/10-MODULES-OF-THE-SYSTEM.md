@@ -36,16 +36,16 @@ ShopSphere is divided into eight modules. Each module groups related functions, 
 
 **Key functions**
 
-- Register as a customer or as a seller
-- Log in and receive a short-lived access token plus a refresh token
+- Register as a customer or as a seller (a seller registration also includes a `store_name` and creates the store in the *pending* state, section 10.4)
+- Log in and receive a short-lived access token plus a refresh token (sent as an httpOnly cookie, section 11.5.1)
 - Refresh an expired access token without logging in again
 - Enforce role-based access on every protected endpoint
 
 | Method | Endpoint | Description | Access |
 |---|---|---|---|
 | POST | `/auth/register` | Register as customer or seller | Public |
-| POST | `/auth/login` | Returns access and refresh tokens | Public |
-| POST | `/auth/refresh` | Exchange a refresh token for a new access token | Public |
+| POST | `/auth/login` | Returns an access token and sets the refresh-token cookie | Public |
+| POST | `/auth/refresh` | Exchange the refresh-token cookie for a new access token | Public |
 
 ## 10.4 Seller Management Module
 
@@ -57,7 +57,7 @@ ShopSphere is divided into eight modules. Each module groups related functions, 
 
 **Key functions**
 
-- A seller registers a store and starts in the *pending* state
+- A seller registers a store through `POST /auth/register` (section 10.3) and starts in the *pending* state
 - The administrator lists pending sellers
 - The administrator approves or rejects each seller; only approved sellers can list products
 
@@ -76,17 +76,17 @@ ShopSphere is divided into eight modules. Each module groups related functions, 
 
 **Key functions**
 
-- List products with category filter, keyword search, and pagination
+- List products with category and price filters, keyword search, and pagination
 - Show product details
-- Create, update, and delete products (a seller can only change their own products)
+- Create, update, and delete products (a seller can only change their own products; deleting a product deactivates it so past orders stay intact, section 15.6)
 
 | Method | Endpoint | Description | Access |
 |---|---|---|---|
-| GET | `/products` | List products; supports `?category=`, `?search=`, `?page=` | Public |
+| GET | `/products` | List active products; supports `?category=`, `?search=`, `?min_price=`, `?max_price=`, `?page=` | Public |
 | GET | `/products/:id` | Product detail | Public |
 | POST | `/products` | Create a product | Seller |
 | PUT | `/products/:id` | Update a product | Seller (owner only) |
-| DELETE | `/products/:id` | Delete a product | Seller (owner only) |
+| DELETE | `/products/:id` | Delete (deactivate) a product | Seller (owner only) |
 
 ## 10.6 Cart Module
 
@@ -106,6 +106,7 @@ ShopSphere is divided into eight modules. Each module groups related functions, 
 |---|---|---|---|
 | GET | `/cart` | Get the current user's cart | Customer |
 | POST | `/cart/items` | Add an item to the cart | Customer |
+| PATCH | `/cart/items/:id` | Change the quantity of a cart item | Customer |
 | DELETE | `/cart/items/:id` | Remove an item from the cart | Customer |
 
 ## 10.7 Order Management Module
@@ -120,13 +121,16 @@ ShopSphere is divided into eight modules. Each module groups related functions, 
 
 - Place an order from the cart: check stock, reserve it, and create the order in one database transaction
 - Store the price paid with each order item
-- Let sellers update the fulfilment status of only their own items
+- Let sellers list and update the fulfilment status of only their own items
+- Let administrators view all orders on the platform
 - Expire unpaid orders after 15 minutes and return their stock
 
 | Method | Endpoint | Description | Access |
 |---|---|---|---|
 | POST | `/orders` | Place an order from the cart and start payment | Customer |
 | GET | `/orders` | List the current user's orders | Customer |
+| GET | `/seller/order-items` | List order items for the seller's own products; supports `?status=` | Seller |
+| GET | `/admin/orders` | List all orders; supports `?status=` and a date range | Admin |
 | GET | `/orders/:id` | Order detail | Customer (owner), Seller (own items), Admin |
 | PATCH | `/orders/:id/items/:itemId` | Update fulfilment status of one item | Seller (owner only) |
 
@@ -143,9 +147,9 @@ Authorization: Bearer <token>
 
 ```json
 {
-  "id": "a3f1...e92",
+  "id": "a3f1e9...",
   "status": "pending_payment",
-  "total_cents": 249900,
+  "total_paise": 384700,
   "payment_intent": {
     "provider": "razorpay",
     "order_id": "order_XXXXXX"
@@ -236,7 +240,7 @@ When the top confidence is below 0.5, `low_confidence` is `true` and the interfa
 
 ShopSphere includes one ML feature: **automatic category suggestion for sellers**. When a seller types a product title and short description while creating a listing, the system suggests the three most likely categories with a confidence score. The seller confirms or changes the choice, so the model only ever *suggests*; it never assigns a category on its own.
 
-**Why this feature:** a wrong or missing category makes a product hard to find through the category filter, and sellers often pick "Other" to save time. Suggestions reduce that friction without removing the seller's control.
+**Why this feature:** a wrong or missing category makes a product hard to find through the category filter, and sellers in a hurry often pick the first category that looks close. Suggestions reduce that friction without removing the seller's control.
 
 | Item | Detail |
 |---|---|
@@ -288,9 +292,9 @@ Only a small sample (`ml/data/sample.csv`, a few dozen rows) is committed. The f
 | Fine-tuned DistilBERT | Considered, not trained | Likely a few points more accurate, but a much larger model, slower inference, and extra infrastructure for a task where product titles are short and keyword-driven |
 | Zero-shot LLM API | Considered, not used | Adds cost, latency, and an external dependency to every listing, and cannot be tested offline |
 
-**The deciding factor was deployment.** The backend is a Node.js monolith (ADR-001 in section 13.3 ([`13-ARCHITECTURE-DIAGRAM.md`](13-ARCHITECTURE-DIAGRAM.md))). Because logistic regression is just a vocabulary, IDF values, and a weight matrix, we export those to a JSON file and compute predictions in plain JavaScript. This keeps the system a single deployable service, with no Python runtime or separate ML service in production.
+**The deciding factor was deployment.** The backend is a Node.js monolith (ADR-001 in section 13.3 ([`13-ARCHITECTURE-DIAGRAM.md`](13-ARCHITECTURE-DIAGRAM.md))). Because logistic regression is just a vocabulary, IDF values, and a weight matrix, we export those to a JSON file and compute predictions in plain TypeScript. This keeps the system a single deployable service, with no Python runtime or separate ML service in production.
 
-**Trade-off accepted:** a TF-IDF model cannot understand word meaning or context, and it ignores product images. See section 18.4 ([`18-CONCLUSION.md`](18-CONCLUSION.md)).
+**Trade-off accepted:** a TF-IDF model cannot understand word meaning or context, and it ignores product images. See section 18.4 ([`18-CONCLUSION-AND-FUTURE-SCOPE.md`](18-CONCLUSION-AND-FUTURE-SCOPE.md)).
 
 ---
 
@@ -351,11 +355,11 @@ All figures below are **illustrative sample values**.
 
 ### 10.10.6 Reproducibility
 
-- Python version and library versions are pinned in `ml/requirements.txt` (scikit-learn, pandas, numpy).
+- Library versions are pinned in `ml/requirements.txt` (scikit-learn, pandas, numpy).
 - All random seeds are fixed (42), so rerunning `train.py` reproduces the same metrics.
 - `notebooks/01-exploration.ipynb` runs top to bottom without edits and shows the class distribution, text length statistics, and the confusion matrix.
 - `models/metrics.json` stores the exact figures reported in this document.
-- **Python and JavaScript parity test:** because training happens in Python but inference runs in Node, a backend Jest test checks that the JavaScript predictions match the Python model's top-1 prediction on 200 held-out listings. This guards against the two tokenizers drifting apart. See section 18.3 ([`18-CONCLUSION.md`](18-CONCLUSION.md)).
+- **Python and TypeScript parity test:** because training happens in Python but inference runs in Node, a backend Jest test checks that the TypeScript predictions match the Python model's top-1 prediction on 200 held-out listings. This guards against the two tokenizers drifting apart. See section 18.3 ([`18-CONCLUSION-AND-FUTURE-SCOPE.md`](18-CONCLUSION-AND-FUTURE-SCOPE.md)).
 
 ---
 
@@ -363,4 +367,4 @@ All figures below are **illustrative sample values**.
 
 - The export step copies the model into `backend/src/ml/`, so the backend deploys on its own without the `ml/` folder. The backend loads `category_model.json` **once at startup**; a prediction takes a few milliseconds.
 - Input is validated before it reaches the model: title required, text capped at 1,000 characters (see section 11.5 ([`11-FEATURES-OF-THE-SYSTEM.md`](11-FEATURES-OF-THE-SYSTEM.md))).
-- Seller choices are **not** logged for retraining in this version. Using them as feedback to improve the model is listed as future work in section 18.4 ([`18-CONCLUSION.md`](18-CONCLUSION.md)).
+- Seller choices are **not** logged for retraining in this version. Using them as feedback to improve the model is listed as future work in section 18.5 ([`18-CONCLUSION-AND-FUTURE-SCOPE.md`](18-CONCLUSION-AND-FUTURE-SCOPE.md)).

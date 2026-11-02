@@ -4,13 +4,13 @@
 
 PostgreSQL was chosen over a NoSQL store because the core entities — users, sellers, products, orders, order items — have well-defined relationships and the system depends on transactional integrity (e.g. an order placement must atomically create the order, order items, and decrement stock, or roll back entirely). A relational database with proper foreign keys and transactions is a better fit than a document store here.
 
-The one place schema flexibility was needed — product attributes vary by category (a T-shirt has "size" and "color"; a laptop has "RAM" and "storage") — is handled with a `JSONB` column on `products` rather than a separate document database, avoiding a two-database architecture for a single flexible field.
+The one place schema flexibility was needed — product attributes vary by category (a T-shirt has "size" and "colour"; a laptop has "RAM" and "storage") — is handled with a `JSONB` column on `products` rather than a separate document database, avoiding a two-database architecture for a single flexible field.
 
 ## 15.2 Entity-Relationship Diagram
 
 ![Entity-relationship diagram](diagrams/er-diagram.png)
 
-The diagram shows the seven tables of the system and how they relate. A user can optionally also be a seller, which is why `sellers` hangs off `users` instead of being a separate kind of login.
+The diagram shows the seven tables of the system and how they relate. Every account, whatever its role, is a row in `users`. A user with the `seller` role also has exactly one row in `sellers` that holds the store details. This is why `sellers` hangs off `users` and is not a separate kind of login. Customers and administrators have no `sellers` row. The same data as it appears in the application code is shown in the class diagram in section 14.1.
 
 ## 15.3 Data Dictionary
 
@@ -51,10 +51,11 @@ Items listed for sale by sellers.
 | `seller_id` | UUID | NOT NULL, foreign key to `sellers.id` | The seller who lists the product |
 | `title` | VARCHAR(200) | NOT NULL | Product title |
 | `description` | TEXT |  | Product description |
-| `category` | VARCHAR(50) | NOT NULL | One of the 8 platform categories |
-| `price_cents` | INTEGER | NOT NULL, CHECK 0 or more | Price in paise (hundredths of a rupee), stored as an integer to avoid rounding errors |
+| `category` | VARCHAR(50) | NOT NULL, CHECK in (`Electronics`, `Fashion`, `Home & Kitchen`, `Books`, `Beauty`, `Sports`, `Toys`, `Grocery`) | One of the 8 platform categories (the same 8 the category suggestion model predicts, section 10.10) |
+| `price_paise` | INTEGER | NOT NULL, CHECK 0 or more | Price in paise (hundredths of a rupee), stored as an integer to avoid rounding errors |
 | `stock` | INTEGER | NOT NULL, CHECK 0 or more | Units currently available |
 | `attributes` | JSONB | default empty object | Category-specific details such as size or colour |
+| `is_active` | BOOLEAN | NOT NULL, default `true` | `false` once the seller deletes the product; inactive products are hidden from the catalogue but kept for past orders |
 | `created_at` | TIMESTAMP | NOT NULL, default current time | When the product was listed |
 
 ### 15.3.4 `cart_items`
@@ -79,7 +80,7 @@ One row per checkout. It may contain items from several sellers.
 | `id` | UUID | Primary key | Unique identifier of the order |
 | `user_id` | UUID | NOT NULL, foreign key to `users.id` | The customer who placed the order |
 | `status` | VARCHAR(20) | NOT NULL, CHECK in (`pending_payment`, `confirmed`, `expired`, `completed`), default `pending_payment` | Overall state of the order |
-| `total_cents` | INTEGER | NOT NULL | Total amount in paise |
+| `total_paise` | INTEGER | NOT NULL, CHECK 0 or more | Total amount in paise |
 | `created_at` | TIMESTAMP | NOT NULL, default current time | When the order was placed |
 
 ### 15.3.6 `order_items`
@@ -92,8 +93,10 @@ The individual products inside an order. Fulfilment is tracked here because each
 | `order_id` | UUID | NOT NULL, foreign key to `orders.id` | The order this item belongs to |
 | `product_id` | UUID | NOT NULL, foreign key to `products.id` | The product ordered |
 | `quantity` | INTEGER | NOT NULL, CHECK greater than 0 | Number of units ordered |
-| `price_at_purchase_cents` | INTEGER | NOT NULL | Unit price at the time of purchase, so later price changes do not affect past orders |
-| `fulfillment_status` | VARCHAR(15) | NOT NULL, CHECK in (`pending`, `shipped`, `delivered`), default `pending` | Fulfilment state, updated by the seller |
+| `price_at_purchase_paise` | INTEGER | NOT NULL, CHECK 0 or more | Unit price at the time of purchase, so later price changes do not affect past orders |
+| `fulfilment_status` | VARCHAR(15) | NOT NULL, CHECK in (`pending`, `shipped`, `delivered`), default `pending` | Fulfilment state, updated by the seller |
+| `shipped_at` | TIMESTAMP |  | When the seller marked the item shipped; used for "Average Days to Ship" in section 17.4 |
+| `delivered_at` | TIMESTAMP |  | When the seller marked the item delivered |
 
 ### 15.3.7 `payments`
 
@@ -103,8 +106,9 @@ The payment attempt for an order, as reported by the payment gateway.
 |---|---|---|---|
 | `id` | UUID | Primary key | Unique identifier of the payment record |
 | `order_id` | UUID | NOT NULL, UNIQUE, foreign key to `orders.id` | The order being paid for |
-| `provider_payment_id` | VARCHAR(100) |  | The gateway's own payment identifier |
-| `amount_cents` | INTEGER | NOT NULL | Amount requested from the gateway, in paise |
+| `provider_order_id` | VARCHAR(100) | NOT NULL, UNIQUE | The gateway order created when the order is placed (`order_...`); the webhook is matched to the payment using this value |
+| `provider_payment_id` | VARCHAR(100) |  | The gateway's own payment identifier (`pay_...`), filled in from the webhook |
+| `amount_paise` | INTEGER | NOT NULL, CHECK 0 or more | Amount requested from the gateway, in paise |
 | `status` | VARCHAR(10) | NOT NULL, CHECK in (`pending`, `confirmed`, `failed`), default `pending` | Payment state, updated only from the verified webhook |
 | `created_at` | TIMESTAMP | NOT NULL, default current time | When the payment record was created |
 | `confirmed_at` | TIMESTAMP |  | When the gateway confirmed the payment |
@@ -132,10 +136,13 @@ The payment attempt for an order, as reported by the payment gateway.
 | `orders(user_id, created_at)` | A customer's order history |
 | `orders(status, created_at)` | The background job that finds expired unpaid orders |
 | `order_items(order_id)` | Loading the items of an order |
+| `order_items(product_id)` | A seller's order items and the seller reports, which join through `products` |
+| `payments(provider_order_id)` UNIQUE | Matching an incoming webhook to its payment record |
 
 ## 15.6 Notes on Key Design Choices
 
-- **`price_at_purchase_cents` on `order_items`, not just a reference to `products.price_cents`** — prices change over time; an order must reflect what the customer actually paid, not the product's current price.
-- **`fulfillment_status` on `order_items` rather than `orders`** — since one order can span multiple sellers (see ADR-002 in section 13.3, [13-ARCHITECTURE-DIAGRAM.md](13-ARCHITECTURE-DIAGRAM.md)), each seller updates only their own items' status.
+- **`price_at_purchase_paise` on `order_items`, not just a reference to `products.price_paise`** — prices change over time; an order must reflect what the customer actually paid, not the product's current price.
+- **`fulfilment_status` on `order_items` rather than `orders`** — since one order can span multiple sellers (see ADR-002 in section 13.3, [13-ARCHITECTURE-DIAGRAM.md](13-ARCHITECTURE-DIAGRAM.md)), each seller updates only their own items' status.
 - **`attributes` as `JSONB` on `products`** — avoids an EAV (entity-attribute-value) table structure, which would complicate every product query with extra joins for a feature that's read far more often than it's queried/filtered on.
-- **Money stored as integer cents (`price_cents`), not decimal/float** — avoids floating-point rounding issues in financial calculations.
+- **Money stored as integer paise (`price_paise`), not decimal/float** — avoids floating-point rounding issues in financial calculations.
+- **Products are deactivated (`is_active = false`), not deleted** — `order_items` references `products`, so deleting a product row would either fail or erase order history. `DELETE /products/:id` (section 10.5) therefore only hides the product from the catalogue.

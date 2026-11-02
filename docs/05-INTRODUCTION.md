@@ -10,7 +10,7 @@ ShopSphere is a multi-vendor e-commerce platform that provides one shared market
 
 ## 5.3 Overview of the System
 
-The system is a web application with three types of users: **customers**, **sellers**, and **administrators**.
+The system is a web application with three types of registered users: **customers**, **sellers**, and **administrators**. Visitors who are not logged in (guests) can browse and search the catalogue before registering (section 12.1).
 
 - **Customers** browse and search the catalogue, add products from different sellers to one cart, pay once, and track each item of their order.
 - **Sellers** register a store, list and maintain their own products, and update the fulfilment status of the items they have sold.
@@ -38,4 +38,4 @@ This document is intended for the project guide and evaluators who assess the wo
 | 15 | Database Design | Entity-relationship diagram and data dictionary |
 | 16 | GUI Design | Mock screens of the main user interfaces |
 | 17 | MIS Reports Design | Design of the management reports |
-| 18 | Conclusion | Summary, testing, limitations, and future scope |
+| 18 | Conclusion and Future Scope | Summary, testing, limitations, and future scope |
