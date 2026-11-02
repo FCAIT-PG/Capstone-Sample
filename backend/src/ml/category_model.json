@@ -1,0 +1,4 @@
+{
+  "_note": "Sample placeholder. A real export contains the vocabulary, IDF values, coefficient matrix, intercepts, and category labels (about 1 MB).",
+  "categories": ["Electronics", "Fashion", "Home & Kitchen", "Books", "Beauty", "Sports", "Toys", "Grocery"]
+}
